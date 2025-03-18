@@ -18,6 +18,7 @@ body {
 
     td:first-child>img {
         margin-bottom: -4px;
+        padding: 0 5px;
     }
 }
 
@@ -26,6 +27,11 @@ body {
     width: fit-content;
     display: flex;
     align-items: flex-start;
+    flex-direction: column;
+
+    span {
+        margin: 0 auto;
+    }
 }
 
 .dropdown {

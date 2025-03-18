@@ -1,8 +1,10 @@
 let searchInput, dropdown, optionsList, guessInput, filteredOptions, activeIndex = -1;
-let guesses = 0;
-const characters = {};
-let gameover = false;
 window.onload = e => {
+    let gameover = false;
+    const characters = {};
+    let maxGuesses = 5;
+    let guesses = 0;
+    document.querySelector("#guess-count").innerHTML = `Guesses: ${maxGuesses - guesses}/${maxGuesses}`;
     characterData.forEach(c => {
         characters[c.name.replace("&#039;", "'")] = c;
     });
@@ -114,25 +116,26 @@ window.onload = e => {
 
     function guess(userGuess, reveal = false) {
         userGuess = characters[userGuess];
-        guesses++;
         searchInput.value = '';
         optionsList.innerHTML = '';
-
+        
         let guessRow;
         if (reveal) {
             guessRow = document.querySelector('#guess-results').children[0].children[0];
         } else {
+            guesses++;
             guessRow = document.querySelector('#guess-results').children[0].children[guesses + 1];
+            document.querySelector("#guess-count").innerHTML = `Guesses: ${maxGuesses - guesses}/${maxGuesses}`;
         }
         guessRow.innerHTML = `
-            <td><img src="https://gbf.wiki/thumb.php?f=Npc_s_${userGuess.id}_01.jpg&w=75"></td>
+            <td ${compareGuess(userGuess, "name")}><img src="https://gbf.wiki/thumb.php?f=Npc_s_${userGuess.id}_01.jpg&w=65"></td>
             <td ${compareGuess(userGuess, "element")}><img src="https://gbf.wiki/thumb.php?f=Label_Element_${userGuess.element}.png&w=70"></td>
             <td ${compareGuess(userGuess, "race")}><img src="https://gbf.wiki/thumb.php?f=Label_Race_${userGuess.race}.png&w=120"></td>
             <td ${compareGuess(userGuess, "type")}><img src="https://gbf.wiki/thumb.php?f=Label_Type_${userGuess.type}.png&w=120"></td>
             <td ${compareGuess(userGuess, "weapon", 0)}><img src="https://gbf.wiki/thumb.php?f=Label_Weapon_${userGuess.weapon[0]}.png&w=80"></td>
             <td ${compareGuess(userGuess, "weapon", 1)}>${userGuess.weapon[1] ? `<img src="https://gbf.wiki/thumb.php?f=Label_Weapon_${userGuess.weapon[1]}.png&w=80">` : ""}</td>
     `
-        if (!gameover && (userGuess == target || guesses == 5)) {
+        if (!gameover && (userGuess == target || guesses == maxGuesses)) {
             gameover = true;
             searchInput.disabled = true;
             guess(target.name, true);
