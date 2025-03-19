@@ -41,7 +41,7 @@ body {
     border: 1px solid #ccc;
     background-color: white;
     overflow: scroll;
-    max-height: 400px;
+    max-height: 230px;
 }
 
 .dropdown input {

@@ -1,42 +1,39 @@
-let searchInput, dropdown, optionsList, guessInput, filteredOptions, targetDisplay, activeIndex = -1;
+let searchInput, dropdown, optionsList, guessInput, filteredOptions, targetDisplay;
 window.onload = e => {
     let gameover = false;
     const characters = {};
-    let maxGuesses = 5;
+    let maxGuesses = 6;
     let guesses = 0;
+    let daily;
+    let target;
+    let date = new Date();
 
     dropdown = document.querySelector('#dropdown');
     searchInput = document.querySelector('#searchInput');
     optionsList = document.querySelector('#optionsList');
     targetDisplay = document.querySelector('#target-display');
+    guessResults = document.querySelector('#guess-results');
 
-    setTargetUnknowns();
-    
-    setGuessesLeft();
     characterData.forEach(c => {
         characters[c.name.replace("&#039;", "'")] = c;
     });
     const characterNames = Object.keys(characters);
-    const date = new Date();
-    const seed = date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate(); // YYYYMMDD format
-    const randomIndex = Math.abs(Math.sin(seed) * 10000) % characterData.length; // Deterministic random value
-    let target = characterData[Math.floor(randomIndex)];
-
     const randomizedNames = shuffleArray(characterNames.slice(0));
-    document.querySelector("#randomize-button").onclick = e => {
-        document.querySelector('#guess-results').children[0].innerHTML = `<tr><tr>
+    startGame(true);
+    
+    document.querySelector("#randomize-button").onclick = e => startGame(false);
+    function startGame(isDaily) {
+        guessResults.children[0].innerHTML = `<tr><tr>
             <td>Character</td>
             <td>Element</td>
             <td>Race</td>
             <td>Style</td>
             <td>Weapon Prof #1</td>
             <td>Weapon Prof #2</td>
-        </tr>
-        <tr></tr>
-        <tr></tr>
-        <tr></tr>
-        <tr></tr>
-        <tr></tr>`;
+        </tr>`;
+        for (let i = 0; i < maxGuesses; i++) {
+            guessResults.children[0].innerHTML += `<tr></tr>`;
+        }
         setTargetUnknowns();
         guesses = 0;
         gameover = false;
@@ -44,12 +41,24 @@ window.onload = e => {
         searchInput.disabled = false;
         searchInput.value = '';
         optionsList.innerHTML = '';
-        let num = Math.floor(Math.random() * characterData.length);
-        target = characters[randomizedNames[num]];
-        document.querySelector("#title").textContent = "Random: " + num;
+        if (isDaily) {
+            const seed = date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate(); // YYYYMMDD format
+            const randomIndex = Math.abs(Math.sin(seed) * 10000) % characterData.length; // Deterministic random value
+            target = characterData[Math.floor(randomIndex)];
+
+            getDailyGuesses().forEach(g => {
+                guess(g, false, true);
+            });
+        }
+        else {
+            var num = Math.floor(Math.random() * characterData.length);
+            target = characters[randomizedNames[num]];
+        }
+        document.querySelector("#title").textContent = isDaily ? "Daily" : "Random: " + num;
+        daily = isDaily;
     }
 
-    function guess(userGuess, reveal = false) {
+    function guess(userGuess, reveal = false, fromStorage = false) {
         userGuess = characters[userGuess];
         searchInput.value = '';
         optionsList.innerHTML = '';
@@ -70,10 +79,15 @@ window.onload = e => {
             <td ${compareGuess(userGuess, "weapon", 0)}><img src="https://gbf.wiki/thumb.php?f=Label_Weapon_${userGuess.weapon[0]}.png&w=80"></td>
             <td ${compareGuess(userGuess, "weapon", 1)}>${userGuess.weapon[1] ? `<img src="https://gbf.wiki/thumb.php?f=Label_Weapon_${userGuess.weapon[1]}.png&w=80">` : ""}</td>
     `
+        if (!fromStorage && !reveal && daily) {
+            let dailyGuesses = getDailyGuesses();
+            dailyGuesses.push(userGuess.name);
+            setDailyGuesses(dailyGuesses);
+        }
         if (!gameover && (userGuess == target || guesses == maxGuesses)) {
             gameover = true;
             searchInput.disabled = true;
-            guess(target.name, true);
+            guess(target.name, true, fromStorage);
         }
     }
 
@@ -101,18 +115,46 @@ window.onload = e => {
         return `style="background-color: ${correct}"`;
     }
 
+    function getDailyGuesses() {
+        let guesses = localStorage.getItem('dailyGuesses');
+        if (!guesses) {
+            guesses = {};
+            localStorage.setItem('dailyGuesses', JSON.stringify(guesses));
+            return [];
+        }
+        guesses = JSON.parse(guesses);
+        let dateIndex = `${date.getMonth()}${date.getDate()}`;
+        if (!guesses[dateIndex]) guesses[dateIndex] = [];
+        return guesses[dateIndex];
+    }
+
+    function setDailyGuesses(guesses) {
+        let guessStorage = localStorage.getItem('dailyGuesses');
+        if (!guessStorage) {
+            guessStorage = {};
+        }
+        guessStorage = JSON.parse(guessStorage);
+        let dateIndex = `${date.getMonth()}${date.getDate()}`;
+        if (!guessStorage[dateIndex]) guessStorage[dateIndex] = [];
+        guessStorage[dateIndex] = guesses;
+        localStorage.setItem('dailyGuesses', JSON.stringify(guessStorage));
+    }
+
+    function setGuessesLeft() {
+        document.querySelector("#guess-count").innerHTML = `Guesses: ${maxGuesses - guesses}/${maxGuesses}`;
+    }
+
     ///Dropdown handling
     {
-        activeIndex = characterNames.length > 0 ? 0 : -1; // Set the first option as active, or reset if no options
-        updateActiveOption(); // Highlight the active option
+        let activeIndex = 0;
 
         searchInput.addEventListener('input', () => {
             const searchTerm = searchInput.value.toLowerCase();
             filteredOptions = characterNames.filter(option =>
                 option.toLowerCase().includes(searchTerm)
             );
-            renderOptions(filteredOptions);
             activeIndex = 0; // Reset active index
+            renderOptions(filteredOptions);
         });
 
         searchInput.addEventListener('keydown', (e) => {
@@ -161,6 +203,7 @@ window.onload = e => {
                 });
                 optionsList.appendChild(li);
             });
+            updateActiveOption();
         }
 
         function updateActiveOption() {
@@ -169,10 +212,6 @@ window.onload = e => {
                 item.classList.toggle('active', index === activeIndex);
             });
         }
-    }
-
-    function setGuessesLeft() {
-        document.querySelector("#guess-count").innerHTML = `Guesses: ${maxGuesses - guesses}/${maxGuesses}`;
     }
 }
 
