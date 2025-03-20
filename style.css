@@ -21,7 +21,7 @@ body {
         padding: 0 5px;
     }
 
-    img:first-child {
+    td:first-child > img {
         width: 65px;
     }
 }
