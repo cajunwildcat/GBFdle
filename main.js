@@ -16,11 +16,32 @@ window.onload = e => {
     guessResults = document.querySelector('#guess-results');
     shareButton = document.querySelector("#share-button");
 
+    const characterNames = [];
     characterData.forEach(c => {
-        characters[c.name.replace("&#039;", "'")] = c;
+        let name = c.name.replace("&#039;", "'")
+        characters[name] = c;
+        let metas = [c.id.toString(), c.jpname]
+        if (c.series && c.series.toLowerCase().includes("grand")) {
+            metas.push(`G.${name.substring(0,name.indexOf("("))}`)
+        }
+        if (c.series && c.series.toLowerCase().includes("summer")) {
+            metas.push(`S.${name.substring(0,name.indexOf("("))}`)
+        }
+        if (c.series && c.series.toLowerCase().includes("halloween")) {
+            metas.push(`H.${name.substring(0,name.indexOf("("))}`)
+        }
+        if (c.series && c.series.toLowerCase().includes("holiday")) {
+            metas.push(`C.${name.substring(0,name.indexOf("("))}`)
+        }
+        if (c.series && c.series.toLowerCase().includes("yukata")) {
+            metas.push(`Y.${name.substring(0,name.indexOf("("))}`)
+        }
+        if (c.series && c.series.toLowerCase().includes("valentine")) {
+            metas.push(`V.${name.substring(0,name.indexOf("("))}`)
+        }
+        characterNames.push({label: name, metatags: metas});
     });
-    const characterNames = Object.keys(characters);
-    const randomizedNames = shuffleArray(characterNames.slice(0));
+    const randomizedNames = shuffleArray(characterNames.slice(0).map(n=>n.label));
     startGame(true);
 
     document.querySelector("#randomize-button").onclick = e => startGame(false);
@@ -50,7 +71,7 @@ window.onload = e => {
             target = characterData[Math.floor(randomIndex)];
 
             getDailyGuesses().forEach(g => {
-                guess(g, false, true);
+                guess(g.replace("&#039;", "'"), false, true);
             });
         }
         else {
@@ -193,7 +214,8 @@ ${shareResults.map(r => r.join("")).join("\n")}`;
         searchInput.addEventListener('input', () => {
             const searchTerm = searchInput.value.toLowerCase();
             filteredOptions = characterNames.filter(option =>
-                option.toLowerCase().includes(searchTerm)
+                option.label.toLowerCase().includes(searchTerm) ||
+                option.metatags.some(tag => tag.toLowerCase().includes(searchTerm))
             );
             activeIndex = 0; // Reset active index
             renderOptions(filteredOptions);
@@ -223,7 +245,7 @@ ${shareResults.map(r => r.join("")).join("\n")}`;
                 }
                 if (activeIndex >= 0) {
                     const selectedOption = characterNames[characterNames.indexOf(filteredOptions[activeIndex])];
-                    guess(selectedOption);
+                    guess(selectedOption.label);
                 }
             }
         });
@@ -238,10 +260,10 @@ ${shareResults.map(r => r.join("")).join("\n")}`;
             optionsList.innerHTML = '';
             options.forEach((option, index) => {
                 const li = document.createElement('li');
-                li.textContent = option;
+                li.textContent = option.label;
                 li.setAttribute('data-index', index);
                 li.addEventListener('click', () => {
-                    guess(option);
+                    guess(option.label);
                 });
                 optionsList.appendChild(li);
             });
