@@ -20,6 +20,10 @@ body {
         margin-bottom: -4px;
         padding: 0 5px;
     }
+
+    img:first-child {
+        width: 65px;
+    }
 }
 
 #inputs {

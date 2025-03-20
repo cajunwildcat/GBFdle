@@ -72,7 +72,7 @@ window.onload = e => {
             setGuessesLeft();
         }
         guessRow.innerHTML = `
-            <td ${compareGuess(userGuess, "name")}><img src="https://gbf.wiki/thumb.php?f=Npc_s_${userGuess.id}_01.jpg&w=65"></td>
+            <td ${compareGuess(userGuess, "name")}><img src="https://prd-game-a-granbluefantasy.akamaized.net/assets_en/img/sp/assets/npc/s/${userGuess.id}_01.jpg"></td>
             <td ${compareGuess(userGuess, "element")}><img src="https://gbf.wiki/thumb.php?f=Label_Element_${userGuess.element}.png&w=70"></td>
             <td ${compareGuess(userGuess, "race")}><img src="https://gbf.wiki/thumb.php?f=Label_Race_${userGuess.race}.png&w=120"></td>
             <td ${compareGuess(userGuess, "type")}><img src="https://gbf.wiki/thumb.php?f=Label_Type_${userGuess.type}.png&w=120"></td>
