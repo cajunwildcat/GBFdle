@@ -1,4 +1,4 @@
-let searchInput, dropdown, optionsList, guessInput, filteredOptions, targetDisplay;
+let searchInput, dropdown, optionsList, guessInput, filteredOptions, targetDisplay, shareButton;
 window.onload = e => {
     let gameover = false;
     const characters = {};
@@ -7,12 +7,14 @@ window.onload = e => {
     let daily;
     let target;
     let date = new Date();
+    let shareResults = [];
 
     dropdown = document.querySelector('#dropdown');
     searchInput = document.querySelector('#searchInput');
     optionsList = document.querySelector('#optionsList');
     targetDisplay = document.querySelector('#target-display');
     guessResults = document.querySelector('#guess-results');
+    shareButton = document.querySelector("#share-button");
 
     characterData.forEach(c => {
         characters[c.name.replace("&#039;", "'")] = c;
@@ -20,7 +22,7 @@ window.onload = e => {
     const characterNames = Object.keys(characters);
     const randomizedNames = shuffleArray(characterNames.slice(0));
     startGame(true);
-    
+
     document.querySelector("#randomize-button").onclick = e => startGame(false);
     function startGame(isDaily) {
         guessResults.children[0].innerHTML = `<tr><tr>
@@ -35,6 +37,7 @@ window.onload = e => {
             guessResults.children[0].innerHTML += `<tr></tr>`;
         }
         setTargetUnknowns();
+        shareResults = [];
         guesses = 0;
         gameover = false;
         setGuessesLeft();
@@ -63,6 +66,7 @@ window.onload = e => {
         searchInput.value = '';
         optionsList.innerHTML = '';
 
+        let guessResults = ["name", "element", "race", "type", "weapon:0", "weapon:1"].map(field => compareGuess(userGuess, field.split(":")[0], field.split(":")[1]))
         let guessRow;
         if (reveal) {
             guessRow = document.querySelector('#guess-results').children[0].children[0];
@@ -72,13 +76,18 @@ window.onload = e => {
             setGuessesLeft();
         }
         guessRow.innerHTML = `
-            <td ${compareGuess(userGuess, "name")}><img src="https://prd-game-a-granbluefantasy.akamaized.net/assets_en/img/sp/assets/npc/s/${userGuess.id}_01.jpg"></td>
-            <td ${compareGuess(userGuess, "element")}><img src="https://gbf.wiki/thumb.php?f=Label_Element_${userGuess.element}.png&w=70"></td>
-            <td ${compareGuess(userGuess, "race")}><img src="https://gbf.wiki/thumb.php?f=Label_Race_${userGuess.race}.png&w=120"></td>
-            <td ${compareGuess(userGuess, "type")}><img src="https://gbf.wiki/thumb.php?f=Label_Type_${userGuess.type}.png&w=120"></td>
-            <td ${compareGuess(userGuess, "weapon", 0)}><img src="https://gbf.wiki/thumb.php?f=Label_Weapon_${userGuess.weapon[0]}.png&w=80"></td>
-            <td ${compareGuess(userGuess, "weapon", 1)}>${userGuess.weapon[1] ? `<img src="https://gbf.wiki/thumb.php?f=Label_Weapon_${userGuess.weapon[1]}.png&w=80">` : ""}</td>
+            <td style="background-color:${guessResults[0]}"><img src="https://prd-game-a-granbluefantasy.akamaized.net/assets_en/img/sp/assets/npc/s/${userGuess.id}_01.jpg"></td>
+            <td style="background-color:${guessResults[1]}"><img src="https://gbf.wiki/thumb.php?f=Label_Element_${userGuess.element}.png&w=70"></td>
+            <td style="background-color:${guessResults[2]}"><img src="https://gbf.wiki/thumb.php?f=Label_Race_${userGuess.race}.png&w=120"></td>
+            <td style="background-color:${guessResults[3]}"><img src="https://gbf.wiki/thumb.php?f=Label_Type_${userGuess.type}.png&w=120"></td>
+            <td style="background-color:${guessResults[4]}"><img src="https://gbf.wiki/thumb.php?f=Label_Weapon_${userGuess.weapon[0]}.png&w=80"></td>
+            <td style="background-color:${guessResults[5]}">${userGuess.weapon[1] ? `<img src="https://gbf.wiki/thumb.php?f=Label_Weapon_${userGuess.weapon[1]}.png&w=80">` : ""}</td>
     `
+        if (userGuess == target && !reveal) {
+            shareResults.push([...guessResults.map(r => mapShareSquares(r))])
+        } else if (!reveal) {
+            shareResults.push([...guessResults.map(r => mapShareSquares(r))])
+        }
         if (!fromStorage && !reveal && daily) {
             let dailyGuesses = getDailyGuesses();
             dailyGuesses.push(userGuess.name);
@@ -88,6 +97,7 @@ window.onload = e => {
             gameover = true;
             searchInput.disabled = true;
             guess(target.name, true, fromStorage);
+            shareButton.disabled = false;
         }
     }
 
@@ -112,7 +122,7 @@ window.onload = e => {
                 correct = "red"
             }
         }
-        return `style="background-color: ${correct}"`;
+        return correct;
     }
 
     function getDailyGuesses() {
@@ -144,8 +154,40 @@ window.onload = e => {
         document.querySelector("#guess-count").innerHTML = `Guesses: ${maxGuesses - guesses}/${maxGuesses}`;
     }
 
-    ///Dropdown handling
+    function mapShareSquares(guessResult) {
+        switch (guessResult) {
+            case "green": return "🟩";
+            case "yellow": return "🟨";
+            case "red": return "⬛";
+        }
+    }
+
+    ///input handling
     {
+        shareButton.onclick = e => {
+            const oneDay = 86400000;
+            const firstDay = new Date(2025, 2, 20);
+            let day = Math.round((((new Date(date.getFullYear(), date.getMonth(), date.getDate())).getTime() - firstDay.getTime()) / oneDay) + 1).toFixed();
+            let results = `GBFdle ${daily ? `Daily #${day}` : document.querySelector("#title").innerHTML.replace(": ", " #")}  ${guesses}/${maxGuesses}
+
+${shareResults.map(r => r.join("")).join("\n")}`;
+            (function (text) {
+                var textarea = document.createElement("textarea");
+                textarea.textContent = text;
+                document.body.appendChild(textarea);
+                textarea.focus();
+                textarea.select();
+                try {
+                    document.execCommand("copy");
+                    document.body.removeChild(textarea);
+                    alert("Copied data to clipboard");
+                }
+                catch (e) {
+                    document.body.removeChild(textarea);
+                }
+            }(results))
+        }
+
         let activeIndex = 0;
 
         searchInput.addEventListener('input', () => {
