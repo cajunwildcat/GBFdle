@@ -1,5 +1,5 @@
 let searchInput, dropdown, optionsList, guessInput, filteredOptions, targetDisplay, shareButton;
-window.onload = e => {
+window.onload = async e => {
     let gameover = false;
     const characters = {};
     let maxGuesses = 6;
@@ -8,6 +8,11 @@ window.onload = e => {
     let target;
     let date = new Date();
     let shareResults = [];
+    let characterData = [];
+    let fetchedData;
+    await fetch("https://raw.githubusercontent.com/cajunwildcat/GBF-Party-Parser/main/characters.json", { next: 43200 })
+    .then(function (response) { return response.json(); })
+    .then((response) => fetchedData = response);
 
     dropdown = document.querySelector('#dropdown');
     searchInput = document.querySelector('#searchInput');
@@ -17,8 +22,14 @@ window.onload = e => {
     shareButton = document.querySelector("#share-button");
 
     const characterNames = [];
+    Object.keys(fetchedData).forEach(o=>{
+        if (fetchedData[o].rarity != "SSR") return;
+        let newObject = {...fetchedData[o], id:o}
+        characterData.push(newObject);
+    });
+    characterData = characterData.sort((a,b)=>(a.pageName.localeCompare(b.pageName)));
     characterData.forEach(c => {
-        let name = c.name.replace("&#039;", "'")
+        let name = c.pageName.replace("&#039;", "'")
         characters[name] = c;
         let metas = [c.id.toString(), c.jpname]
         if (c.series && c.series.toLowerCase().includes("grand")) {
@@ -87,7 +98,7 @@ window.onload = e => {
         searchInput.value = '';
         optionsList.innerHTML = '';
 
-        let guessResults = ["name", "element", "race", "type", "weapon:0", "weapon:1"].map(field => compareGuess(userGuess, field.split(":")[0], field.split(":")[1]))
+        let guessResults = ["pageName", "element", "race", "type", "weapon:0", "weapon:1"].map(field => compareGuess(userGuess, field.split(":")[0], field.split(":")[1]))
         let guessRow;
         if (reveal) {
             guessRow = document.querySelector('#guess-results').children[0].children[0];
@@ -97,7 +108,7 @@ window.onload = e => {
             setGuessesLeft();
         }
         guessRow.innerHTML = `
-            <td style="background-color:${guessResults[0]}"><img src="https://prd-game-a-granbluefantasy.akamaized.net/assets_en/img/sp/assets/npc/s/${userGuess.id}_01.jpg"></td>
+            <td style="background-color:${guessResults[0]}"><a href="https://gbf.wiki/${userGuess.pageName}" target="_blank"><img src="https://prd-game-a-granbluefantasy.akamaized.net/assets_en/img/sp/assets/npc/s/${userGuess.id}_01.jpg"></a></td>
             <td style="background-color:${guessResults[1]}"><img src="https://gbf.wiki/thumb.php?f=Label_Element_${userGuess.element}.png&w=70"></td>
             <td style="background-color:${guessResults[2]}"><img src="https://gbf.wiki/thumb.php?f=Label_Race_${userGuess.race}.png&w=120"></td>
             <td style="background-color:${guessResults[3]}"><img src="https://gbf.wiki/thumb.php?f=Label_Type_${userGuess.type}.png&w=120"></td>
@@ -111,13 +122,13 @@ window.onload = e => {
         }
         if (!fromStorage && !reveal && daily) {
             let dailyGuesses = getDailyGuesses();
-            dailyGuesses.push(userGuess.name);
+            dailyGuesses.push(userGuess.pageName);
             setDailyGuesses(dailyGuesses);
         }
         if (!gameover && (userGuess == target || guesses == maxGuesses)) {
             gameover = true;
             searchInput.disabled = true;
-            guess(target.name, true, fromStorage);
+            guess(target.pageName, true, fromStorage);
             shareButton.disabled = false;
         }
     }

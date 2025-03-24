@@ -16,12 +16,9 @@ body {
         padding: 0;
     }
 
-    td:first-child>img {
+    td:first-child>a>img {
         margin-bottom: -4px;
         padding: 0 5px;
-    }
-
-    td:first-child > img {
         width: 65px;
     }
 }
@@ -35,12 +32,10 @@ body {
 }
 
 .dropdown {
-    top: 0;
-    left: 0;
     width: 200px;
     border: 1px solid #ccc;
     background-color: white;
-    overflow: scroll;
+    overflow-y: scroll;
     max-height: 230px;
 }
 
