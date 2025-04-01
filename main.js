@@ -29,9 +29,11 @@ window.onload = async e => {
     });
     characterData = characterData.sort((a,b)=>(a.pageName.localeCompare(b.pageName)));
     characterData.forEach(c => {
+        if (!c.id) return;
         let name = c.pageName.replace("&#039;", "'")
         characters[name] = c;
-        let metas = [c.id.toString(), c.jpname]
+        let metas = [c.id.toString()];
+        c.jpname? metas.push(c.id.toString()) : null;
         if (c.series && c.series.toLowerCase().includes("grand")) {
             metas.push(`G.${name.substring(0,name.indexOf("("))}`)
         }
