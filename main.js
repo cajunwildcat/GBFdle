@@ -12,7 +12,6 @@ window.onload = async e => {
         now.setUTCDate(now.getUTCDate()-1); // Move to the previous day if before 18:00 UTC
     }
     let date = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()+1));
-    console.log(date)
     let shareResults = [];
     let characterData = [];
     let fetchedData;
@@ -86,7 +85,6 @@ window.onload = async e => {
         optionsList.innerHTML = '';
         if (isDaily) {
             const seed = date.getUTCFullYear() * 10000 + (date.getUTCMonth() + 1) * 100 + date.getUTCDate(); // YYYYMMDD format
-console.log(seed)
             const randomIndex = Math.abs(Math.sin(seed) * 10000) % characterData.length; // Deterministic random value
             target = characterData[Math.floor(randomIndex)];
 
@@ -174,7 +172,7 @@ console.log(seed)
             return [];
         }
         guesses = JSON.parse(guesses);
-        let dateIndex = `${date.getMonth()}${date.getDate()}`;
+        let dateIndex = `${date.getUTCFullYear()}${date.getUTCMonth()}${date.getUTCDate()}`;
         if (!guesses[dateIndex]) guesses[dateIndex] = [];
         return guesses[dateIndex];
     }
@@ -185,7 +183,7 @@ console.log(seed)
             guessStorage = {};
         }
         guessStorage = JSON.parse(guessStorage);
-        let dateIndex = `${date.getMonth()}${date.getDate()}`;
+        let dateIndex = `${date.getUTCFullYear()}${date.getMonth()}${date.getUTCDate()}`;
         if (!guessStorage[dateIndex]) guessStorage[dateIndex] = [];
         guessStorage[dateIndex] = guesses;
         localStorage.setItem('dailyGuesses', JSON.stringify(guessStorage));
