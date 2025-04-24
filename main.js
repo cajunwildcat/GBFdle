@@ -6,13 +6,19 @@ window.onload = async e => {
     let guesses = 0;
     let daily;
     let target;
-    let date = new Date();
+    let now = new Date();
+    let utcHour = now.getUTCHours();
+    if (utcHour < 20) {
+        now.setUTCDate(now.getUTCDate()-1); // Move to the previous day if before 18:00 UTC
+    }
+    let date = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()+1));
+    console.log(date)
     let shareResults = [];
     let characterData = [];
     let fetchedData;
     await fetch("https://raw.githubusercontent.com/cajunwildcat/GBF-Party-Parser/main/characters.json", { next: 43200 })
-    .then(function (response) { return response.json(); })
-    .then((response) => fetchedData = response);
+        .then(function (response) { return response.json(); })
+        .then((response) => fetchedData = response);
 
     dropdown = document.querySelector('#dropdown');
     searchInput = document.querySelector('#searchInput');
@@ -22,39 +28,39 @@ window.onload = async e => {
     shareButton = document.querySelector("#share-button");
 
     const characterNames = [];
-    Object.keys(fetchedData).forEach(o=>{
+    Object.keys(fetchedData).forEach(o => {
         if (fetchedData[o].rarity != "SSR") return;
-        let newObject = {...fetchedData[o], id:o}
+        let newObject = { ...fetchedData[o], id: o }
         characterData.push(newObject);
     });
-    characterData = characterData.sort((a,b)=>(a.pageName.localeCompare(b.pageName)));
+    characterData = characterData.sort((a, b) => (a.pageName.localeCompare(b.pageName)));
     characterData.forEach(c => {
         if (!c.id) return;
         let name = c.pageName.replace("&#039;", "'")
         characters[name] = c;
         let metas = [c.id.toString()];
-        c.jpname? metas.push(c.id.toString()) : null;
+        c.jpname ? metas.push(c.id.toString()) : null;
         if (c.series && c.series.toLowerCase().includes("grand")) {
-            metas.push(`G.${name.substring(0,name.indexOf("("))}`)
+            metas.push(`G.${name.substring(0, name.indexOf("("))}`)
         }
         if (c.series && c.series.toLowerCase().includes("summer")) {
-            metas.push(`S.${name.substring(0,name.indexOf("("))}`)
+            metas.push(`S.${name.substring(0, name.indexOf("("))}`)
         }
         if (c.series && c.series.toLowerCase().includes("halloween")) {
-            metas.push(`H.${name.substring(0,name.indexOf("("))}`)
+            metas.push(`H.${name.substring(0, name.indexOf("("))}`)
         }
         if (c.series && c.series.toLowerCase().includes("holiday")) {
-            metas.push(`C.${name.substring(0,name.indexOf("("))}`)
+            metas.push(`C.${name.substring(0, name.indexOf("("))}`)
         }
         if (c.series && c.series.toLowerCase().includes("yukata")) {
-            metas.push(`Y.${name.substring(0,name.indexOf("("))}`)
+            metas.push(`Y.${name.substring(0, name.indexOf("("))}`)
         }
         if (c.series && c.series.toLowerCase().includes("valentine")) {
-            metas.push(`V.${name.substring(0,name.indexOf("("))}`)
+            metas.push(`V.${name.substring(0, name.indexOf("("))}`)
         }
-        characterNames.push({label: name, metatags: metas});
+        characterNames.push({ label: name, metatags: metas });
     });
-    const randomizedNames = shuffleArray(characterNames.slice(0).map(n=>n.label));
+    const randomizedNames = shuffleArray(characterNames.slice(0).map(n => n.label));
     startGame(true);
 
     document.querySelector("#randomize-button").onclick = e => startGame(false);
@@ -79,7 +85,8 @@ window.onload = async e => {
         searchInput.value = '';
         optionsList.innerHTML = '';
         if (isDaily) {
-            const seed = date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate(); // YYYYMMDD format
+            const seed = date.getUTCFullYear() * 10000 + (date.getUTCMonth() + 1) * 100 + date.getUTCDate(); // YYYYMMDD format
+console.log(seed)
             const randomIndex = Math.abs(Math.sin(seed) * 10000) % characterData.length; // Deterministic random value
             target = characterData[Math.floor(randomIndex)];
 
