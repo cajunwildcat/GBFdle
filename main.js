@@ -96,7 +96,7 @@ window.onload = async e => {
             var num = Math.floor(Math.random() * characterData.length);
             target = characters[randomizedNames[num]];
         }
-        document.querySelector("#title").innerHTML = isDaily ? "Daily<br><p style='font-size:16px;margin:0;'>Resets at 05:00 JST (GBF Daily Reset)</p>" : "Random: " + num;
+        document.querySelector("#title").innerHTML = isDaily ? "Daily<br><p style='font-size:16px;margin:0;' title='GBF Daily Reset'>Resets at 05:00 JST</p>" : "Random: " + num;
         daily = isDaily;
     }
 
