@@ -1,6 +1,7 @@
 let searchInput, dropdown, optionsList, guessInput, filteredOptions, targetDisplay, shareButton;
 window.onload = async e => {
     let gameover = false;
+    let failed = false;
     const characters = {};
     let maxGuesses = 6;
     let guesses = 0;
@@ -79,6 +80,7 @@ window.onload = async e => {
         shareResults = [];
         guesses = 0;
         gameover = false;
+        failed = false;
         setGuessesLeft();
         searchInput.disabled = false;
         searchInput.value = '';
@@ -133,6 +135,9 @@ window.onload = async e => {
             setDailyGuesses(dailyGuesses);
         }
         if (!gameover && (userGuess == target || guesses == maxGuesses)) {
+            if (guesses == maxGuesses && userGuess != target) {
+                failed = true;
+            }
             gameover = true;
             searchInput.disabled = true;
             guess(target.pageName, true, fromStorage);
@@ -207,7 +212,7 @@ window.onload = async e => {
             const oneDay = 86400000;
             const firstDay = new Date(2025, 2, 20);
             let day = Math.round((((new Date(date.getFullYear(), date.getMonth(), date.getDate())).getTime() - firstDay.getTime()) / oneDay) + 1).toFixed();
-            let results = `GBFdle ${daily ? `Daily #${day}` : document.querySelector("#title").innerHTML.replace(": ", " #")}  ${guesses}/${maxGuesses}
+            let results = `GBFdle ${daily ? `Daily #${day}` : document.querySelector("#title").innerHTML.replace(": ", " #")}  ${failed? 'X' : guesses}/${maxGuesses}
 
 ${shareResults.map(r => r.join("")).join("\n")}`;
             (function (text) {
