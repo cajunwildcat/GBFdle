@@ -188,7 +188,7 @@ window.onload = async e => {
             guessStorage = {};
         }
         guessStorage = JSON.parse(guessStorage);
-        let dateIndex = `${date.getUTCFullYear()}${date.getMonth()}${date.getUTCDate()}`;
+        let dateIndex = `${date.getUTCFullYear()}${date.getUTCMonth()}${date.getUTCDate()}`;
         if (!guessStorage[dateIndex]) guessStorage[dateIndex] = [];
         guessStorage[dateIndex] = guesses;
         localStorage.setItem('dailyGuesses', JSON.stringify(guessStorage));
