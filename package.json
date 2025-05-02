@@ -1,0 +1,21 @@
+{
+  "name": "gbfdle",
+  "version": "1.0.0",
+  "main": "main.js",
+  "type": "module",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cajunwildcat/GBFdle.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cajunwildcat/GBFdle/issues"
+  },
+  "homepage": "https://github.com/cajunwildcat/GBFdle#readme",
+  "description": "",
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
+}
