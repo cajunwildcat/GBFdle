@@ -26,8 +26,22 @@ jobs:
       - name: Fetch and update past characters
         run: node .github/scripts/set-weeklies.js
 
-      - name: Commit and push changes
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "Weekly Update"
-          file_pattern: "dailies.json"
+      - name: Check for Changes
+        id: check_changes
+        run: |
+          git fetch
+          if [[ -n $(git status --porcelain) ]]; then
+            echo "Changes detected, proceeding with commit and push."
+            echo "::set-output name=has_changes::true"
+          else
+            echo "No changes detected, exiting without pushing."
+            echo "::set-output name=has_changes::false"
+            exit 0
+          fi
+
+      - name: Commit and Push Changes
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          git add .
+          git commit -m "Weekly character selection"
+          git push origin main
