@@ -1,4 +1,4 @@
-let searchInput, dropdown, optionsList, guessInput, filteredOptions, targetDisplay, shareButton;
+let searchInput, dropdown, optionsList, guessInput, filteredOptions, targetDisplay, shareButton, randomizeButton;
 window.onload = async e => {
     let gameover = false;
     let failed = false;
@@ -10,9 +10,10 @@ window.onload = async e => {
     let now = new Date();
     let utcHour = now.getUTCHours();
     if (utcHour < 20) {
-        now.setUTCDate(now.getUTCDate()-1); // Move to the previous day if before 18:00 UTC
+        now.setUTCDate(now.getUTCDate() - 1); // Move to the previous day if before 18:00 UTC
     }
-    let date = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()+1));
+    let date = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
+    let dateIndex = date.toISOString().split('T')[0].replace(/-/g, '');
     let shareResults = [];
     let characterData = [];
     let fetchedData;
@@ -26,6 +27,7 @@ window.onload = async e => {
     targetDisplay = document.querySelector('#target-display');
     guessResults = document.querySelector('#guess-results');
     shareButton = document.querySelector("#share-button");
+    randomizeButton = document.querySelector("#randomize-button");
 
     const characterNames = [];
     Object.keys(fetchedData).forEach(o => {
@@ -63,8 +65,8 @@ window.onload = async e => {
     const randomizedNames = shuffleArray(characterNames.slice(0).map(n => n.label));
     startGame(true);
 
-    document.querySelector("#randomize-button").onclick = e => startGame(false);
-    function startGame(isDaily) {
+    randomizeButton.onclick = e => startGame(false);
+    async function startGame(isDaily) {
         guessResults.children[0].innerHTML = `<tr><tr>
             <td>Character</td>
             <td>Element</td>
@@ -82,13 +84,21 @@ window.onload = async e => {
         gameover = false;
         failed = false;
         setGuessesLeft();
-        searchInput.disabled = false;
         searchInput.value = '';
         optionsList.innerHTML = '';
         if (isDaily) {
-            const seed = date.getUTCFullYear() * 10000 + (date.getUTCMonth() + 1) * 100 + date.getUTCDate(); // YYYYMMDD format
-            const randomIndex = Math.abs(Math.sin(seed) * 10000) % characterData.length; // Deterministic random value
-            target = characterData[Math.floor(randomIndex)];
+            let dailies;
+            await fetch("./dailies.json")
+                .then(function (response) { return response.json(); })
+                .then((response) => dailies = response);
+            target = characters[dailies[dateIndex]];
+            if (target === undefined) {
+                shareButton.disabled = true;
+                randomizeButton.disabled = true;
+                document.body.querySelectorAll("*:not(#title)").forEach(e => e.style.display = "none");
+                document.querySelector("#title").innerHTML = "<p style='color:red;'>Something has gone wrong and there is no character for today. Please alert <a href='https://x.com/enshroudedfish'>Cajun</a> and check back later.</p>";
+                return;
+            }
 
             getDailyGuesses().forEach(g => {
                 guess(g.replace("&#039;", "'"), false, true);
@@ -98,6 +108,7 @@ window.onload = async e => {
             var num = Math.floor(Math.random() * characterData.length);
             target = characters[randomizedNames[num]];
         }
+        searchInput.disabled = false;
         document.querySelector("#title").innerHTML = isDaily ? "Daily<br><p style='font-size:16px;margin:0;' title='GBF Daily Reset'>Resets at 05:00 JST</p>" : "Random: " + num;
         daily = isDaily;
     }
@@ -177,7 +188,6 @@ window.onload = async e => {
             return [];
         }
         guesses = JSON.parse(guesses);
-        let dateIndex = `${date.getUTCFullYear()}${date.getUTCMonth()}${date.getUTCDate()}`;
         if (!guesses[dateIndex]) guesses[dateIndex] = [];
         return guesses[dateIndex];
     }
@@ -188,7 +198,6 @@ window.onload = async e => {
             guessStorage = {};
         }
         guessStorage = JSON.parse(guessStorage);
-        let dateIndex = `${date.getUTCFullYear()}${date.getUTCMonth()}${date.getUTCDate()}`;
         if (!guessStorage[dateIndex]) guessStorage[dateIndex] = [];
         guessStorage[dateIndex] = guesses;
         localStorage.setItem('dailyGuesses', JSON.stringify(guessStorage));
@@ -212,7 +221,7 @@ window.onload = async e => {
             const oneDay = 86400000;
             const firstDay = new Date(2025, 2, 20);
             let day = Math.round((((new Date(date.getFullYear(), date.getMonth(), date.getDate())).getTime() - firstDay.getTime()) / oneDay) + 1).toFixed();
-            let results = `GBFdle ${daily ? `Daily #${day}` : document.querySelector("#title").innerHTML.replace(": ", " #")}  ${failed? 'X' : guesses}/${maxGuesses}
+            let results = `GBFdle ${daily ? `Daily #${day}` : document.querySelector("#title").innerHTML.replace(": ", " #")}  ${failed ? 'X' : guesses}/${maxGuesses}
 
 ${shareResults.map(r => r.join("")).join("\n")}`;
             (function (text) {
