@@ -220,7 +220,7 @@ window.onload = async e => {
         shareButton.onclick = e => {
             const oneDay = 86400000;
             const firstDay = new Date(2025, 2, 20);
-            let day = Math.round((((new Date(date.getFullYear(), date.getMonth(), date.getDate())).getTime() - firstDay.getTime()) / oneDay) + 1).toFixed();
+            let day = Math.round(((date.getTime() - firstDay.getTime()) / oneDay)).toFixed();
             let results = `GBFdle ${daily ? `Daily #${day}` : document.querySelector("#title").innerHTML.replace(": ", " #")}  ${failed ? 'X' : guesses}/${maxGuesses}
 
 ${shareResults.map(r => r.join("")).join("\n")}`;
