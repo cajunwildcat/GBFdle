@@ -18,7 +18,7 @@ const shuffle = arr => arr.sort(() => Math.random() - 0.5);
     const weekCharacters = [];
     const uniqueNames = new Set();
 
-    let pool = allCharacters.filter(c => !pastUsed.has(c.pageName));
+    let pool = allCharacters.filter(c => !pastUsed.has(c.pageName) && c.rarity == "SSR");
     shuffle(pool);
 
     let i = 0;

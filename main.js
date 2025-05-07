@@ -88,10 +88,13 @@ window.onload = async e => {
         optionsList.innerHTML = '';
         if (isDaily) {
             let dailies;
-            await fetch("./dailies.json")
-                .then(function (response) { return response.json(); })
-                .then((response) => dailies = response);
+            console.log(dateIndex);
+            await fetch("./dailies.json", {next: 0})
+            .then(function (response) { return response.json();})
+            .then((response) => dailies = response);
+            console.log(dailies)
             target = characters[dailies[dateIndex]];
+            console.log(target);
             if (target === undefined) {
                 shareButton.disabled = true;
                 randomizeButton.disabled = true;
