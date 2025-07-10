@@ -41,7 +41,7 @@ window.onload = async e => {
         let name = c.pageName.replace("&#039;", "'")
         characters[name] = c;
         let metas = [c.id.toString()];
-        c.jpname ? metas.push(c.id.toString()) : null;
+        c.jpname ? metas.push(c.jpname) : null;
         if (c.series && c.series.toLowerCase().includes("grand")) {
             metas.push(`G.${name.substring(0, name.indexOf("("))}`)
         }
