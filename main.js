@@ -86,6 +86,7 @@ window.onload = async e => {
         setGuessesLeft();
         searchInput.value = '';
         optionsList.innerHTML = '';
+        searchInput.disabled = false;
         if (isDaily) {
             let dailies;
             await fetch("./dailies.json", {next: 0})
@@ -108,7 +109,6 @@ window.onload = async e => {
             var num = Math.floor(Math.random() * characterData.length);
             target = characters[randomizedNames[num]];
         }
-        searchInput.disabled = false;
         document.querySelector("#title").innerHTML = isDaily ? "Daily<br><p style='font-size:16px;margin:0;' title='GBF Daily Reset'>Resets at 05:00 JST</p>" : "Random: " + num;
         daily = isDaily;
     }
@@ -170,8 +170,7 @@ window.onload = async e => {
         else if (field == "race") {
             if (guess[field][0] == target[field][0] && guess[field][1] == target[field][1]) {
                 correct = "green"
-            } else if (guess[field][0] == target[field][0] && guess[field][1] != target[field][1] ||
-                (guess[field][1] && target[field][1] && guess[field][0] != target[field][0] && guess[field][1] == target[field][1])) {
+            } else if (guess[field].some(race => target[field].includes(race))) {
                 correct = "yellow"
             } else {
                 correct = "red"
