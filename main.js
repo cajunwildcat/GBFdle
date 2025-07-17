@@ -17,7 +17,7 @@ window.onload = async e => {
     let shareResults = [];
     let characterData = [];
     let fetchedData;
-    await fetch("https://raw.githubusercontent.com/cajunwildcat/GBF-Party-Parser/main/characters.json", { next: 43200 })
+    await fetch("https://raw.githubusercontent.com/cajunwildcat/The-GrandCypher/main/characters.json", { next: 43200 })
         .then(function (response) { return response.json(); })
         .then((response) => fetchedData = response);
 
