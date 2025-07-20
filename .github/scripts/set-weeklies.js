@@ -1,8 +1,8 @@
 import { readFileSync, writeFileSync } from 'fs';
 import fetch from 'node-fetch';
 
-const PAST_CHARACTERS_PATH = 'dailies.json'; // Adjust this
-const POSSIBLE_CHARACTERS_URL = 'https://raw.githubusercontent.com/cajunwildcat/GBF-Party-Parser/main/characters.json'; // Adjust this
+const PAST_CHARACTERS_PATH = 'dailies.json';
+const POSSIBLE_CHARACTERS_URL = 'https://raw.githubusercontent.com/cajunwildcat/The-GrandCypher/main/characters.json';
 
 const shuffle = arr => arr.sort(() => Math.random() - 0.5);
 
