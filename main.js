@@ -129,11 +129,11 @@ window.onload = async e => {
         }
         guessRow.innerHTML = `
             <td style="background-color:${guessResults[0]}"><a href="https://gbf.wiki/${userGuess.pageName}" target="_blank"><img src="https://prd-game-a-granbluefantasy.akamaized.net/assets_en/img/sp/assets/npc/s/${userGuess.id}_01.jpg"></a></td>
-            <td style="background-color:${guessResults[1]}"><img src="https://gbf.wiki/thumb.php?f=Label_Element_${userGuess.element}.png&w=70"></td>
-            <td style="background-color:${guessResults[2]}"><img src="https://gbf.wiki/thumb.php?f=Label_Race_${userGuess.race}.png&w=120"></td>
-            <td style="background-color:${guessResults[3]}"><img src="https://gbf.wiki/thumb.php?f=Label_Type_${userGuess.type}.png&w=120"></td>
-            <td style="background-color:${guessResults[4]}"><img src="https://gbf.wiki/thumb.php?f=Label_Weapon_${userGuess.weapon[0]}.png&w=80"></td>
-            <td style="background-color:${guessResults[5]}">${userGuess.weapon[1] ? `<img src="https://gbf.wiki/thumb.php?f=Label_Weapon_${userGuess.weapon[1]}.png&w=80">` : ""}</td>
+            <td style="background-color:${guessResults[1]}"><img src="assets/Label_Element_${userGuess.element}.png"></td>
+            <td style="background-color:${guessResults[2]}"><img src="assets/Label_Race_${userGuess.race}.png"></td>
+            <td style="background-color:${guessResults[3]}"><img src="assets/Label_Type_${userGuess.type}.png"></td>
+            <td style="background-color:${guessResults[4]}"><img src="assets/Label_Weapon_${userGuess.weapon[0]}.png"></td>
+            <td style="background-color:${guessResults[5]}">${userGuess.weapon[1] ? `<img src="assets/Label_Weapon_${userGuess.weapon[1]}.png">` : ""}</td>
     `
         if (userGuess == target && !reveal) {
             shareResults.push([...guessResults.map(r => mapShareSquares(r))])
@@ -312,7 +312,7 @@ ${shareResults.map(r => r.join("")).join("\n")}`;
 
 function setTargetUnknowns() {
     targetDisplay.innerHTML = `
-<td><img src="https://gbf.wiki/thumb.php?f=Unknown_square.jpg&w=75"></td>`
+<td><img src="assets/Secret_Square.png"></td>`
     /*`<td><img id="#target-element" style="width:70px;" src="https://gbf.wiki/images/archive/a/a2/20200113072357%21Label_Race_Unknown.png"></td>
     <td><img id="#target-race" style="width:120px;" src="https://gbf.wiki/images/archive/a/a2/20200113072357%21Label_Race_Unknown.png"></td>
     <td><img id="#target-style" style="width:120px;" src="https://gbf.wiki/images/archive/a/a2/20200113072357%21Label_Race_Unknown.png"></td>
